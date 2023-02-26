@@ -17,6 +17,8 @@ MPSStream::MPSStream(Stream stream) : _stream(stream) {
   TORCH_CHECK(_stream.device_type() == DeviceType::MPS);
   _serialQueue = dispatch_queue_create("metal gpu stream", nullptr);
   _executionDescriptor = [MPSGraphExecutionDescriptor new];
+  _executionDescriptor.compilationDescriptor = [MPSGraphCompilationDescriptor new];
+  _executionDescriptor.compilationDescriptor.optimizationLevel = MPSGraphOptimizationLevel1;
   _executionDescriptor.completionHandler = ^(NSDictionary<MPSGraphTensor *,
                                              MPSGraphTensorData *> * resultsDictionary,
                                              NSError * _Nullable error) { };
