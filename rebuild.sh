@@ -1,7 +1,7 @@
 #!/bin/bash
 export MAX_JOBS=10; 
-export DEBUG=1
-export CFLAGS="-march=native  -I/opt/homebrew/opt/llvm/include"
+export DEBUG=0
+export CFLAGS="-march=native -Ofast  -I/opt/homebrew/opt/llvm/include"
 export LDFLAGS="-L/opt/homebrew/opt/llvm/lib"
 export USE_CUDA=0 
 export CC="/opt/homebrew/opt/llvm/bin/clang"
