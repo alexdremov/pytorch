@@ -296,7 +296,7 @@ def get_split_k(B: int, H: int, Mk: int, SM: int = 128) -> int:
         return SM
     bh = B * H
     split_k = SM // bh  # Each SM should at least get one block.
-    split_k = max(split_k, 1)
+    split_k = V.graph.sizevars.evaluate_max(split_k, 1)
 
     return split_k
 
@@ -343,14 +343,14 @@ def create_flex_decoding_kernel(*args, **kwargs):
     Bq, Hq, seq_len_q, qk_head_dim = query.get_size()
     Bkv, Hkv, seq_len_kv, v_head_dim = value.get_size()
 
-    if not ((Bq == Bkv) or (Bq > 1 and Bkv == 1)):
+    if not (V.graph.sizevars.evaluate_expr(sympy.Eq(Bq, Bkv)) or (V.graph.sizevars.evaluate_expr(sympy.Gt(Bq, 1)) and V.graph.sizevars.evaluate_expr(sympy.Eq(Bkv, 1)))):
         raise RuntimeError(f"Bq and Bkv must broadcast. Got Bq={Bq} and Bkv={Bkv}")
 
     B = Bq
     kernel_options = dict(kernel_options)
 
     # TODO: Fix flex decoding non-divisible case!
-    if seq_len_q % 128 != 0 or seq_len_kv % 128 != 0:
+    if V.graph.sizevars.evaluate_expr(seq_len_q) % 128 != 0 or V.graph.sizevars.evaluate_expr(seq_len_kv) % 128 != 0:
         kernel_options.setdefault("IS_DIVISIBLE", False)
     else:
         kernel_options.setdefault("IS_DIVISIBLE", True)

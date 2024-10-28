@@ -1878,7 +1878,10 @@ def _maybe_evaluate_static_worker(
         return new_expr
 
     # Check if the range can solve it statically
-    out = bound_sympy(new_expr, new_range_env)
+    try:
+        out = bound_sympy(new_expr, new_range_env)
+    except ValueRangeError:
+        return None
     if out.is_singleton():
         return out.lower
 
